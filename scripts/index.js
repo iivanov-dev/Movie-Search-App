@@ -1,7 +1,7 @@
-const inputFilmNameNode = document.querySelector(".js-main__input");
-const searchFilmBtnNode = document.querySelector(".js-main__search-film-btn");
-const noFilmNode = document.querySelector(".js-no-film");
-const allFilmsNode = document.querySelector(".js-films");
+const inputFilmNameNode = document.querySelector(".js-search-input");
+const searchFilmBtnNode = document.querySelector(".js-search-btn");
+const noFilmNode = document.querySelector(".js-no-movies");
+const allFilmsNode = document.querySelector(".js-movies");
 
 if (!inputFilmNameNode || !searchFilmBtnNode || !noFilmNode || !allFilmsNode) {
   console.error("Не все элементы найдены в DOM");
