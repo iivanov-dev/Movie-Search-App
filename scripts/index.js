@@ -1,18 +1,64 @@
-const inputFilmNameNode = document.querySelector(".js-search-input");
-const searchFilmBtnNode = document.querySelector(".js-search-btn");
-const noFilmNode = document.querySelector(".js-no-movies");
-const allFilmsNode = document.querySelector(".js-movies");
+const NOT_FOUND_FILM = "Movies not found";
 
-if (!inputFilmNameNode || !searchFilmBtnNode || !noFilmNode || !allFilmsNode) {
-  console.error("Не все элементы найдены в DOM");
-  throw new Error(
-    "Критическая ошибка: один или несколько DOM элементов не найдены",
-  );
-}
+const inputSearchMovieNode = document.querySelector(".js-search-input");
+const btnSearchMovieNode = document.querySelector(".js-search-btn");
+const noMoviesNode = document.querySelector(".js-no-movies");
+const allMoviesNode = document.querySelector(".js-movies");
 
-function showNoSearchResult(message = "Фильмы не найдены") {
-  noFilmNode.textContent = message;
-  allFilmsNode.innerHTML = "";
+btnSearchMovieNode.addEventListener("click", function () {
+  const inputValue = inputSearchMovieNode.value.trim();
+  if (inputValue === "") {
+    showNoSearchResult("Please enter the movie title!");
+    return;
+  }
+
+  fetch(
+    `https://www.omdbapi.com/?s=${encodeURIComponent(inputValue)}&apikey=d69b78ae`,
+    )
+    .then((response) => {
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+    })
+    .then((json) => {
+    console.log(json);
+
+    if (json.Response === "True") {
+        const fullFilmsArray = json.Search;
+        console.log(fullFilmsArray);
+        renderFilms(fullFilmsArray);
+    } else {
+        showNoSearchResult(json.Error || NOT_FOUND_FILM);
+    }
+    })
+    .catch((error) => {
+    console.error("Ошибка при получении данных:", error);
+    showNoSearchResult("Ошибка при поиске фильмов");
+    });
+    clearInput(inputSearchMovieNode);
+    }
+);
+
+//-------------------------------------------
+// Нужна ли данная проверка??
+//
+// if (
+//   !inputSearchMovieNode ||
+//   !btnSearchMovieNode ||
+//   !noMoviesNode ||
+//   !allMoviesNode
+// ) {
+//   console.error("Не все элементы найдены в DOM");
+//   throw new Error(
+//     "Критическая ошибка: один или несколько DOM элементов не найдены",
+//   );
+// }
+//----------------------------------------------
+
+function showNoSearchResult(message = NOT_FOUND_FILM) {
+  noMoviesNode.textContent = message;
+  allMoviesNode.innerHTML = "";
 }
 
 function clearInput(inputElement) {
@@ -24,14 +70,14 @@ function clearPastList(filmsContainer) {
 }
 
 function renderFilms(filmsArray) {
-  noFilmNode.textContent = "";
+  noMoviesNode.textContent = "";
 
   if (!filmsArray || filmsArray.length === 0) {
-    showNoSearchResult("Фильмы не найдены");
+    showNoSearchResult(NOT_FOUND_FILM);
     return;
   }
 
-  clearPastList(allFilmsNode);
+  clearPastList(allMoviesNode);
 
   filmsArray.forEach((element) => {
     const filmCard = document.createElement("a");
@@ -44,56 +90,22 @@ function renderFilms(filmsArray) {
         : "https://via.placeholder.com/300x450?text=No+Image";
 
     filmCard.innerHTML = `
-            <div class="film__image">
-                <img src="${posterUrl}" alt="${element.Title || "film-image"}" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x450?text=No+Image';">
+            <div class='film__image'>
+                <img src='${posterUrl}' alt='${element.Title || "film-image"}' onerror='this.onerror=null;this.src='https://via.placeholder.com/300x450?text=No+Image';'>
             </div>
-            <div class="film__info">
-                <h2 class="film-name">${element.Title || ""}</h2>
-                <h3 class="film-year">${element.Year || ""}</h3>
-                <h4 class="film-or-serial">${element.Type || ""}</h4>
+            <div class='film__info'>
+                <h2 class='film-name'>${element.Title || ""}</h2>
+                <h3 class='film-year'>${element.Year || ""}</h3>
+                <h4 class='film-or-serial'>${element.Type || ""}</h4>
             </div>
         `;
 
-    allFilmsNode.appendChild(filmCard);
+    allMoviesNode.appendChild(filmCard);
   });
 }
 
-searchFilmBtnNode.addEventListener("click", function () {
-  const inputValue = inputFilmNameNode.value.trim();
-  if (inputValue === "") {
-    showNoSearchResult("Пожалуйста, введите название фильма");
-    return;
-  }
-
-  fetch(
-    `https://www.omdbapi.com/?s=${encodeURIComponent(inputValue)}&apikey=d69b78ae`,
-  )
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((json) => {
-      console.log(json);
-
-      if (json.Response === "True") {
-        const fullFilmsArray = json.Search;
-        console.log(fullFilmsArray);
-        renderFilms(fullFilmsArray);
-      } else {
-        showNoSearchResult(json.Error || "Фильмы не найдены");
-      }
-    })
-    .catch((error) => {
-      console.error("Ошибка при получении данных:", error);
-      showNoSearchResult("Ошибка при поиске фильмов");
-    });
-  clearInput(inputFilmNameNode);
-});
-
-inputFilmNameNode.addEventListener("keypress", function (event) {
+inputSearchMovieNode.addEventListener("keypress", function (event) {
   if (event.key === "Enter") {
-    searchFilmBtnNode.click();
+    btnSearchMovieNode.click();
   }
 });
