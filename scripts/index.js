@@ -5,41 +5,6 @@ const btnSearchMovieNode = document.querySelector(".js-search-btn");
 const noMoviesNode = document.querySelector(".js-no-movies");
 const allMoviesNode = document.querySelector(".js-movies");
 
-btnSearchMovieNode.addEventListener("click", function () {
-  const inputValue = inputSearchMovieNode.value.trim();
-  if (inputValue === "") {
-    showNoSearchResult("Please enter the movie title!");
-    return;
-  }
-
-  fetch(
-    `https://www.omdbapi.com/?s=${encodeURIComponent(inputValue)}&apikey=d69b78ae`,
-    )
-    .then((response) => {
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-    })
-    .then((json) => {
-    console.log(json);
-
-    if (json.Response === "True") {
-        const fullFilmsArray = json.Search;
-        console.log(fullFilmsArray);
-        renderFilms(fullFilmsArray);
-    } else {
-        showNoSearchResult(json.Error || NOT_FOUND_FILM);
-    }
-    })
-    .catch((error) => {
-    console.error("Ошибка при получении данных:", error);
-    showNoSearchResult("Ошибка при поиске фильмов");
-    });
-    clearInput(inputSearchMovieNode);
-    }
-);
-
 //-------------------------------------------
 // Нужна ли данная проверка??
 //
@@ -56,18 +21,44 @@ btnSearchMovieNode.addEventListener("click", function () {
 // }
 //----------------------------------------------
 
-function showNoSearchResult(message = NOT_FOUND_FILM) {
-  noMoviesNode.textContent = message;
-  allMoviesNode.innerHTML = "";
-}
+btnSearchMovieNode.addEventListener("click", function () {
+  const inputValue = inputSearchMovieNode.value.trim();
+  if (inputValue === "") {
+    showNoSearchResult("Please enter the movie title!");
+    return;
+  }
 
-function clearInput(inputElement) {
-  inputElement.value = "";
-}
+  fetch(
+    `https://www.omdbapi.com/?s=${encodeURIComponent(inputValue)}&apikey=d69b78ae`,
+  )
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((json) => {
+      console.log(json);
 
-function clearPastList(filmsContainer) {
-  filmsContainer.innerHTML = "";
-}
+      // Нужна ли здесь реализация LocalStorage?
+      // Если да, тогда в каком случае требуется его очистка? (по количеству запросов?)
+      if (json.Response === "True") {
+        const fullFilmsArray = json.Search;
+        console.log(fullFilmsArray);
+        renderFilms(fullFilmsArray);
+      } else {
+        showNoSearchResult(json.Error || NOT_FOUND_FILM);
+      }
+
+      clearInput(inputSearchMovieNode);
+    })
+    .catch((error) => {
+      console.error("Ошибка при получении данных:", error);
+      showNoSearchResult("Ошибка при поиске фильмов");
+
+      clearInput(inputSearchMovieNode);
+    });
+});
 
 function renderFilms(filmsArray) {
   noMoviesNode.textContent = "";
@@ -90,18 +81,32 @@ function renderFilms(filmsArray) {
         : "https://via.placeholder.com/300x450?text=No+Image";
 
     filmCard.innerHTML = `
-            <div class='film__image'>
-                <img src='${posterUrl}' alt='${element.Title || "film-image"}' onerror='this.onerror=null;this.src='https://via.placeholder.com/300x450?text=No+Image';'>
-            </div>
-            <div class='film__info'>
-                <h2 class='film-name'>${element.Title || ""}</h2>
-                <h3 class='film-year'>${element.Year || ""}</h3>
-                <h4 class='film-or-serial'>${element.Type || ""}</h4>
-            </div>
-        `;
+        <div class="film-image">
+            <img src='${posterUrl}' alt='${element.Title || "film-image"}' 
+                onerror='this.onerror=null;this.src="https://via.placeholder.com/300x450?text=No+Image";'>
+        </div>
+        <div class="film-info">
+            <h2 class="film-name">${element.Title || ""}</h2>
+            <h3 class="film-year">${element.Year || ""}</h3>
+            <h4 class="film-type">${element.Type || ""}</h4>
+        </div>
+    `;
 
     allMoviesNode.appendChild(filmCard);
   });
+}
+
+function showNoSearchResult(message = NOT_FOUND_FILM) {
+  noMoviesNode.textContent = message;
+  allMoviesNode.innerHTML = "";
+}
+
+function clearInput(inputElement) {
+  inputElement.value = "";
+}
+
+function clearPastList(filmsContainer) {
+  filmsContainer.innerHTML = "";
 }
 
 inputSearchMovieNode.addEventListener("keypress", function (event) {

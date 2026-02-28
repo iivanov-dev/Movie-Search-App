@@ -4,37 +4,30 @@ body {
   font-style: normal;
 }
 
-header {
-  background-color: #f1cfe3;
-}
-footer {
-  background-color: #f1cfcf;
+header { 
+  background-color: #f1cfe3; 
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.bold {
-  font-weight: 700;
+footer { 
+  background-color: #f1cfcf; 
 }
 
-a {
-  text-decoration: none;
+h1, h2, h3, h4, h5, h6, .bold { 
+  font-weight: 700; 
 }
 
-button {
-  cursor: pointer;
+a { 
+  text-decoration: none; 
+}
+
+button { 
+  cursor: pointer; 
 }
 
 .container {
-  margin: 0px auto;
-
+  margin: 0 auto;
   padding-left: 375px;
   padding-right: 375px;
-
   max-width: 1920px;
   width: 100%;
   height: 100%;
@@ -54,14 +47,32 @@ button {
   overflow: hidden;
 }
 
-.film__image img {
+.film-image img {
   width: 100%;
   height: 300px;
   object-fit: cover;
 }
 
-.film__info {
+.film-info {
   padding: 15px;
+}
+
+.film-name { 
+  font-size: 16px; 
+  margin: 0 0 5px 0; 
+}
+
+.film-year { 
+  font-size: 14px; 
+  margin: 0 0 3px 0; 
+  color: #666; 
+}
+
+.film-type { 
+  font-size: 12px; 
+  margin: 0; 
+  color: #999; 
+  text-transform: uppercase; 
 }
 
 .no-movies {
@@ -71,17 +82,57 @@ button {
   margin: 40px 0;
 }
 
+.search-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.search-btn {
+  padding: 12px 24px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.search-btn:hover {
+  background-color: #0056b3;
+}
 
 @media (max-width: 1440px) {
-  .container {
-    padding-left: 40px;
-    padding-right: 40px;
+  .container { 
+    padding-left: 40px; 
+    padding-right: 40px; 
   }
 }
 
 @media (max-width: 768px) {
-  .container{
-    padding-left: 0px;
-    padding-right: 0px;
+  .container {
+    padding-left: 0; 
+    padding-right: 0; 
+  }
+  
+  .search-section {
+    flex-direction: column;
+  }
+  
+  .movies {
+    gap: 10px;
+  }
+  
+  .film {
+    width: 100%;
+    max-width: 300px;
   }
 }
