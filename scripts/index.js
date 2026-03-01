@@ -5,26 +5,23 @@ const btnSearchMovieNode = document.querySelector(".js-search-btn");
 const noMoviesNode = document.querySelector(".js-no-movies");
 const allMoviesNode = document.querySelector(".js-movies");
 
-//-------------------------------------------
-// Нужна ли данная проверка??
-//
-// if (
-//   !inputSearchMovieNode ||
-//   !btnSearchMovieNode ||
-//   !noMoviesNode ||
-//   !allMoviesNode
-// ) {
-//   console.error("Не все элементы найдены в DOM");
-//   throw new Error(
-//     "Критическая ошибка: один или несколько DOM элементов не найдены",
-//   );
-// }
-//----------------------------------------------
+const cache = {};
+cache[''] = {
+  expires: Date.now() + 1000 * 15,
+  data: [],
+};
 
 btnSearchMovieNode.addEventListener("click", function () {
   const inputValue = inputSearchMovieNode.value.trim();
   if (inputValue === "") {
     showNoSearchResult("Please enter the movie title!");
+    return;
+  }
+
+    if (cache[inputValue] && 
+      cache[inputValue].data.length > 0 && 
+      cache[inputValue].expires > Date.now()) {
+    renderFilms(cache[inputValue].data);
     return;
   }
 
@@ -40,25 +37,29 @@ btnSearchMovieNode.addEventListener("click", function () {
     .then((json) => {
       console.log(json);
 
-      // Нужна ли здесь реализация LocalStorage?
-      // Если да, тогда в каком случае требуется его очистка? (по количеству запросов?)
+      // Кэширование памяти в рамках одной сессии страницы
       if (json.Response === "True") {
         const fullFilmsArray = json.Search;
+
+        cache[inputValue] = {
+          expires: Date.now() + 1000 * 15,
+          data: fullFilmsArray,
+        };
+
         console.log(fullFilmsArray);
         renderFilms(fullFilmsArray);
       } else {
         showNoSearchResult(json.Error || NOT_FOUND_FILM);
       }
-
-      clearInput(inputSearchMovieNode);
     })
-    .catch((error) => {
-      console.error("Ошибка при получении данных:", error);
-      showNoSearchResult("Ошибка при поиске фильмов");
 
-      clearInput(inputSearchMovieNode);
+    .catch((error) => {
+      console.error("Error occurred while retrieving data:", error);
+      showNoSearchResult("Error while searching for movies");
     });
 });
+
+
 
 function renderFilms(filmsArray) {
   noMoviesNode.textContent = "";
